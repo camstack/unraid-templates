@@ -14,15 +14,15 @@
     /config  config.yaml — bootstrap server/auth/tls and the JWT secret
 
   Image: ghcr.io/camstack/camstack:intel-latest
-  Generated against @camstack/server 1.2.19.
+  Generated against @camstack/server 1.2.456.
 
   Required runtime flags, shown without their leading dashes because an XML
   comment cannot contain a double hyphen. Full form in ExtraParams below.
   Do not remove them:
-  shm-size=2g
-      Docker's 64 MB default /dev/shm is too small for the decoder frame rings; exhaustion surfaces as an uncatchable SIGBUS inside the decoder.
   device-cgroup-rule='c 189:* rmw'
       Coral USB re-enumerates (1a6e:089a → 18d1:9302) when libedgetpu initialises, so the post-init device node is not the one that was passed through. The cgroup rule admits the whole USB char-device major. Pairs with the /dev/bus/usb mapping.
+  pids-limit=8192
+      A container cgroup counts THREADS, not processes. This hub was measured refusing 22 clone() calls in 45 minutes against the 2048 Docker/Unraid default — every one of them a thread some subsystem needed and silently did without, surfacing only as media that stopped. The ceiling stays (it is what makes a thread leak visible) and native-metrics reads pids.current/max/events on a heartbeat, so approaching it is now legible instead of fatal.
 -->
 <Container version="2">
   <Name>CamStack</Name>
@@ -42,7 +42,7 @@
   <WebUI>https://[IP]:[PORT:4443]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/camstack/unraid-templates/main/templates/camstack.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/camstack/unraid-templates/main/icon.png</Icon>
-  <ExtraParams>--shm-size=2g --device-cgroup-rule=&apos;c 189:* rmw&apos;</ExtraParams>
+  <ExtraParams>--device-cgroup-rule=&apos;c 189:* rmw&apos; --pids-limit=8192</ExtraParams>
   <PostArgs/>
   <CPUset/>
   <DateInstalled/>
@@ -61,6 +61,7 @@
   <!-- Storage -->
   <Config Name="Data" Target="/data" Default="/mnt/user/appdata/camstack" Mode="rw" Description="Installed addons, ML models, TLS certificates, logs and the runtime SQLite database. Losing this loses the install." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/camstack</Config>
   <Config Name="Config" Target="/config" Default="/mnt/user/appdata/camstack-config" Mode="rw" Description="config.yaml — bootstrap server/auth/tls settings and the generated JWT secret. Kept separate from the data root so the one file worth backing up is easy to find." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/camstack-config</Config>
+  <Config Name="Backups" Target="/backups" Default="/mnt/user/appdata/camstack-backups" Mode="rw" Description="Backup archives. Seeds here by default (CAMSTACK_BACKUP_ROOT=/backups) so archives live on their own mount instead of filling the /data cache. Point it at a roomy share; repoint the Backups storage location in the UI to override." Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/camstack-backups</Config>
   <Config Name="Recordings" Target="/recordings" Default="/mnt/user/camstack" Mode="rw" Description="Recordings and event media. Point this at a roomy array share, not the cache. The paired CAMSTACK_MEDIA_ROOT variable is what actually sends media here — changing one without the other does nothing." Type="Path" Display="always" Required="false" Mask="false">/mnt/user/camstack</Config>
   <Config Name="Coral USB (whole USB bus)" Target="/dev/bus/usb" Default="/dev/bus/usb" Mode="rw" Description="Coral USB Edge TPU. The whole bus is mapped, not one device node, because the accelerator re-enumerates from 1a6e:089a to 18d1:9302 when libedgetpu initialises. Paired with the --device-cgroup-rule flag. Remove if you have no Coral." Type="Path" Display="always" Required="false" Mask="false">/dev/bus/usb</Config>
 
@@ -74,9 +75,10 @@
   <Config Name="Admin password" Target="CAMSTACK_ADMIN_PASS" Default="" Mode="" Description="Admin password. Set this before the first boot — an empty value falls back to the built-in default, which the UI then forces you to change." Type="Variable" Display="always" Required="true" Mask="true"></Config>
   <Config Name="JWT secret" Target="CAMSTACK_JWT_SECRET" Default="" Mode="" Description="Fixed signing secret so login sessions survive a restart. Leave blank to generate one into config.yaml. Generate: openssl rand -hex 32" Type="Variable" Display="always" Required="false" Mask="true"></Config>
   <Config Name="Media root" Target="CAMSTACK_MEDIA_ROOT" Default="/recordings" Mode="" Description="Container path all media is written under. Must match the Recordings path above, or recordings land inside /data and fill the cache." Type="Variable" Display="always" Required="true" Mask="false">/recordings</Config>
-  <Config Name="Hub public URL" Target="CAMSTACK_HUB_PUBLIC_URL" Default="" Mode="" Description="Externally reachable base URL of this hub, e.g. https://192.168.1.9:4443. Remote agents fetch addon bundles and models from it. Leave blank only for a single-machine install — the https://127.0.0.1:4443 fallback is unreachable from an agent and silently breaks deploying addons to one." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Hub public URL" Target="CAMSTACK_HUB_PUBLIC_URL" Default="" Mode="" Description="Externally reachable base URL of this hub, e.g. https://192.168.x.x:4443. Remote agents fetch addon bundles and models from it. Leave blank only for a single-machine install — the https://127.0.0.1:4443 fallback is unreachable from an agent and silently breaks deploying addons to one." Type="Variable" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Cluster: advertise hostname" Target="CAMSTACK_MOLECULER_USE_HOSTNAME" Default="false" Mode="" Description="Must stay false for a multi-machine cluster so nodes advertise their IP rather than a container hostname no other host can resolve." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
   <Config Name="Cluster: event fanout" Target="CAMSTACK_MOLECULER_EVENT_FANOUT" Default="shadow" Mode="" Description="Inter-node event delivery mode: filter | shadow | broadcast." Type="Variable" Display="advanced" Required="false" Mask="false">shadow</Config>
-  <Config Name="Frame-ring budget (MB)" Target="CAMSTACK_SHM_RING_BUDGET_MB" Default="16" Mode="" Description="Per-camera decoder frame-ring budget. Keep the aggregate under --shm-size. The code default is 16; change it only if you know why." Type="Variable" Display="advanced" Required="false" Mask="false">16</Config>
+  <Config Name="Fleet-read boot census (ms)" Target="CAMSTACK_FLEET_READ_CENSUS_MS" Default="" Mode="" Description="Diagnostic only — arms a one-shot call-site census of the fleet-wide device read for this many MILLISECONDS after boot, then logs one &quot;fleet read census&quot; line and disarms itself. Leave blank; set only while chasing a boot-time read storm, and unset it again afterwards. A non-numeric value (e.g. &quot;true&quot;) silently fails to arm — it is not a boolean switch. Capped at 600000 (10 minutes) regardless of what is set. Example: 120000 for a 2-minute window." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Log level" Target="CAMSTACK_LOG_LEVEL" Default="info" Mode="" Description="trace | debug | info | warn | error." Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
 
 </Container>
