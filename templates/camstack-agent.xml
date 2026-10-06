@@ -55,8 +55,6 @@
   <Config Name="Cluster transport (TCP)" Target="6000" Default="6000" Mode="tcp" Description="Moleculer cluster transport between the hub and remote agents. Needed only for a multi-machine cluster." Type="Port" Display="always" Required="false" Mask="false">6000</Config>
   <Config Name="Cluster discovery (UDP)" Target="4445" Default="4445" Mode="udp" Description="Moleculer same-subnet auto-discovery. Not needed when the hub address is set explicitly." Type="Port" Display="advanced" Required="false" Mask="false">4445</Config>
   <Config Name="RTSP restream" Target="8554" Default="8554" Mode="tcp" Description="RTSP restream served on demand by the stream broker." Type="Port" Display="advanced" Required="false" Mask="false">8554</Config>
-  <Config Name="WebRTC (TCP)" Target="8555" Default="8555" Mode="tcp" Description="WebRTC media. Required for live view from outside the LAN." Type="Port" Display="advanced" Required="false" Mask="false">8555</Config>
-  <Config Name="WebRTC (UDP)" Target="8555" Default="8555" Mode="udp" Description="WebRTC media — the normal transport. Prefer UDP; TCP is the fallback." Type="Port" Display="advanced" Required="false" Mask="false">8555</Config>
 
   <!-- Storage -->
   <Config Name="Data" Target="/data" Default="/mnt/user/appdata/camstack-agent" Mode="rw" Description="Installed addons, ML models, native dependencies, logs and this agent&apos;s identity. Use a different folder from the hub. Safe to wipe — it re-seeds from the hub on the next boot." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/camstack-agent</Config>
