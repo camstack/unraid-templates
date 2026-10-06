@@ -76,7 +76,6 @@
   <Config Name="Cluster secret" Target="CAMSTACK_CLUSTER_SECRET" Default="" Mode="" Description="Shared secret. If the hub is configured with one, this must match exactly or the hub rejects the registration. Leave blank if the hub has none." Type="Variable" Display="always" Required="false" Mask="true"></Config>
   <Config Name="Media root" Target="CAMSTACK_MEDIA_ROOT" Default="/recordings" Mode="" Description="Container path all media is written under. Must match the Recordings path above." Type="Variable" Display="advanced" Required="false" Mask="false">/recordings</Config>
   <Config Name="Cluster: advertise hostname" Target="CAMSTACK_MOLECULER_USE_HOSTNAME" Default="false" Mode="" Description="Must stay false for a multi-machine cluster so nodes advertise their IP rather than a container hostname no other host can resolve." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
-  <Config Name="Cluster: event fanout" Target="CAMSTACK_MOLECULER_EVENT_FANOUT" Default="shadow" Mode="" Description="Inter-node event delivery mode: filter | shadow | broadcast." Type="Variable" Display="advanced" Required="false" Mask="false">shadow</Config>
   <Config Name="Log level" Target="CAMSTACK_LOG_LEVEL" Default="info" Mode="" Description="trace | debug | info | warn | error." Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
 
 </Container>
