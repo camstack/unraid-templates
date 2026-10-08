@@ -11,7 +11,7 @@
 
   Two host paths MUST be mapped or a container re-create loses state:
     /data    installed addons, ML models, TLS, logs and the SQLite database
-    /config  config.yaml — bootstrap server/auth/tls and the JWT secret
+    /config  config.yaml — bootstrap server/tls settings and the keychain key location
 
   Image: ghcr.io/camstack/camstack:intel-latest
   Generated against @camstack/server 1.2.456.
@@ -37,7 +37,7 @@
   <Project>https://camstack.io</Project>
   <ReadMe>https://github.com/camstack/unraid-templates#readme</ReadMe>
   <License>MIT</License>
-  <Overview>CamStack is a self-hosted camera-management hub. ONVIF/RTSP/Reolink/Hikvision device providers, a WebRTC and RTSP restream broker, recording, and a motion + ML detection pipeline, all as addons over a typed RPC layer. Run this once; add a CamStack Agent on any other machine whose GPU/NPU you want to put to work. The admin UI is HTTPS on port 4443 with a self-signed certificate by default. Map BOTH /data and /config, and set the admin credentials before first boot.</Overview>
+  <Overview>CamStack is a self-hosted camera-management hub. ONVIF/RTSP/Reolink/Hikvision device providers, a WebRTC and RTSP restream broker, recording, and a motion + ML detection pipeline, all as addons over a typed RPC layer. Run this once; add a CamStack Agent on any other machine whose GPU/NPU you want to put to work. The admin UI is HTTPS on port 4443 with a self-signed certificate by default. Map BOTH /data and /config. The first sign-in is admin / changeme and asks you for a new password. No password, token or key goes in this template: a cluster secret, if you want one, is set in the admin UI (System → Cluster) and entered on each agent at first run.</Overview>
   <Category>HomeAutomation: Tools: Other:</Category>
   <WebUI>https://[IP]:[PORT:4443]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/camstack/unraid-templates/main/templates/camstack.xml</TemplateURL>
@@ -58,7 +58,7 @@
 
   <!-- Storage -->
   <Config Name="Data" Target="/data" Default="/mnt/user/appdata/camstack" Mode="rw" Description="Installed addons, ML models, TLS certificates, logs and the runtime SQLite database. Losing this loses the install." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/camstack</Config>
-  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/camstack-config" Mode="rw" Description="config.yaml — bootstrap server/auth/tls settings and the generated JWT secret. Kept separate from the data root so the one file worth backing up is easy to find." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/camstack-config</Config>
+  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/camstack-config" Mode="rw" Description="config.yaml — bootstrap server/tls settings and the keychain master-key location (never a secret value). Kept separate from the data root so the one file worth backing up is easy to find." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/camstack-config</Config>
   <Config Name="Backups" Target="/backups" Default="/mnt/user/appdata/camstack-backups" Mode="rw" Description="Backup archives. Seeds here by default (CAMSTACK_BACKUP_ROOT=/backups) so archives live on their own mount instead of filling the /data cache. Point it at a roomy share; repoint the Backups storage location in the UI to override." Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/camstack-backups</Config>
   <Config Name="Recordings" Target="/recordings" Default="/mnt/user/camstack" Mode="rw" Description="Recordings and event media. Point this at a roomy array share, not the cache. The paired CAMSTACK_MEDIA_ROOT variable is what actually sends media here — changing one without the other does nothing." Type="Path" Display="always" Required="false" Mask="false">/mnt/user/camstack</Config>
   <Config Name="Coral USB (whole USB bus)" Target="/dev/bus/usb" Default="/dev/bus/usb" Mode="rw" Description="Coral USB Edge TPU. The whole bus is mapped, not one device node, because the accelerator re-enumerates from 1a6e:089a to 18d1:9302 when libedgetpu initialises. Paired with the --device-cgroup-rule flag. Remove if you have no Coral." Type="Path" Display="always" Required="false" Mask="false">/dev/bus/usb</Config>
@@ -69,9 +69,6 @@
 
   <!-- Settings -->
   <Config Name="Node role" Target="CAMSTACK_ROLE" Default="hub" Mode="" Description="hub | agent. One image serves both; this selects the role at boot. Leave it as hub here." Type="Variable" Display="always" Required="true" Mask="false">hub</Config>
-  <Config Name="Admin username" Target="CAMSTACK_ADMIN_USER" Default="admin" Mode="" Description="Admin login, created on the first boot only. Changing it later does not create or rename an account." Type="Variable" Display="always" Required="true" Mask="false">admin</Config>
-  <Config Name="Admin password" Target="CAMSTACK_ADMIN_PASS" Default="" Mode="" Description="Seeds the admin password on the first boot only — after that the password is the one set in the admin UI, and editing this field changes nothing. Empty seeds the built-in default, which the first sign-in forces you to change. Forgot it? Create an empty file RESET_ADMIN_PASSWORD in the appdata folder and restart: the password goes back to this value once, and the file is deleted." Type="Variable" Display="always" Required="true" Mask="true"></Config>
-  <Config Name="JWT secret" Target="CAMSTACK_JWT_SECRET" Default="" Mode="" Description="Fixed signing secret so login sessions survive a restart. Leave blank to generate one into config.yaml. Generate: openssl rand -hex 32" Type="Variable" Display="always" Required="false" Mask="true"></Config>
   <Config Name="Media root" Target="CAMSTACK_MEDIA_ROOT" Default="/recordings" Mode="" Description="Container path all media is written under. Must match the Recordings path above, or recordings land inside /data and fill the cache." Type="Variable" Display="always" Required="true" Mask="false">/recordings</Config>
   <Config Name="HTTPS port" Target="CAMSTACK_PORT" Default="" Mode="" Description="Optional. Port the hub serves the admin UI and API on. Blank = 4443. Only meaningful with host networking (or br0): under bridge networking change the published port mapping instead. If you change it, put the new port in every agent&apos;s Hub URL." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
   <Config Name="TLS enabled" Target="CAMSTACK_TLS_ENABLED" Default="" Mode="" Description="Optional. Blank or true = HTTPS. Any other value (e.g. false) serves plain HTTP — only behind a reverse proxy that terminates TLS for you; browsers refuse passkeys, the camera and the microphone over plain HTTP." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
