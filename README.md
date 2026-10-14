@@ -21,17 +21,18 @@ Applications → Manage Repositories*, or install a template directly from its r
 
 Start with the hub. Point an agent at the hub's address after the hub is up.
 
-## ⚠️ These files are generated — do not edit them here
+## Container contract
 
-They are produced from the container image's real contract (image reference, the
-environment variables the server actually reads, volumes, device passthroughs, ports)
-by a generator in the CamStack server repository, and a CI guard fails the build when
-a template and the image contract disagree. That is the point: a hand-maintained
-template drifts from the image it is supposed to launch, silently, and the first
-symptom is an install that pulls nothing or a mount the server ignores.
+These templates are maintained by hand and mirror the image's contract: ports, volumes,
+device passthroughs and the environment variables the server reads. When the image's
+contract changes, update both files here in the same piece of work.
 
-An edit made in this repository will be overwritten by the next copy. Fixes belong
-upstream, in the generator.
+- Hub: `4443/tcp` (HTTPS admin UI), `6443/tcp` (mutual-TLS cluster mesh, multi-machine
+  clusters only), `8554/tcp` (RTSP restream).
+- Agent: `4444/tcp` (status dashboard), `6443/tcp` (mutual-TLS listener).
+- The old clear mesh port `6000` and the UDP discovery port `4445` are gone.
+- Hubs announce themselves over mDNS (UDP `5353` multicast). That reaches the LAN with a
+  dedicated container IP (`br0`) or host networking, and not in Docker bridge mode.
 
 ## Reporting a problem
 
