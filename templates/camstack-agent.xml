@@ -6,7 +6,7 @@
   CamStack agent — a worker node. One per extra machine.
 
   Same image as the hub; CAMSTACK_ROLE=agent selects the role. Run the hub
-  first (camstack.xml), then set Hub address here.
+  first (camstack.xml), then pair this agent from the hub (System → Cluster).
 
   Host networking is the default because an agent pulls RTSP from LAN
   cameras and serves WebRTC — both want the real host IP. br0 with a
@@ -36,7 +36,7 @@
   <Project>https://camstack.io</Project>
   <ReadMe>https://github.com/camstack/unraid-templates#readme</ReadMe>
   <License>MIT</License>
-  <Overview>A CamStack Agent is a worker node. It joins a CamStack hub and runs the heavy work on this machine instead: ML detection, hardware decode/encode, the WebRTC and RTSP broker, and recording. This is not a standalone install — run the CamStack hub first, then point this at it. Until a hub is set the agent serves a status dashboard on port 4444 where you can configure the connection — and, if the hub sets a cluster secret (System → Cluster), enter it there; it is kept in the agent's own agent.json, never in this template. The app version is managed by the hub; only the boot loader comes from this image.</Overview>
+  <Overview>A CamStack Agent is a worker node. It joins a CamStack hub and runs the heavy work on this machine instead: ML detection, hardware decode/encode, the WebRTC and RTSP broker, and recording. This is not a standalone install — run the CamStack hub first, then point this at it. The agent is paired from the hub: open System → Cluster, find it under Agents found on the network (or add it by address) and confirm the same six-digit code on the hub and on the agent's own page on port 4444. There is no shared secret to copy; after pairing the agent and hub trust each other by certificate. The app version is managed by the hub; only the boot loader comes from this image.</Overview>
   <Category>HomeAutomation: Tools: Other:</Category>
   <WebUI>http://[IP]:[PORT:4444]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/camstack/unraid-templates/main/templates/camstack-agent.xml</TemplateURL>
@@ -67,7 +67,7 @@
 
   <!-- Settings -->
   <Config Name="Node role" Target="CAMSTACK_ROLE" Default="agent" Mode="" Description="hub | agent. One image serves both; this selects the role at boot. Leave it as agent here." Type="Variable" Display="always" Required="true" Mask="false">agent</Config>
-  <Config Name="Hub address" Target="CAMSTACK_HUB_ADDRESS" Default="" Mode="" Description="IP or hostname of the hub to join, e.g. 192.168.x.x. Leave blank and the agent stays unconfigured: open the dashboard on port 4444, pick the hub from the list found over mDNS (needs host networking or br0) and paste a join token minted on that hub." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Hub address" Target="CAMSTACK_HUB_ADDRESS" Default="" Mode="" Description="IP or hostname of the hub to join, e.g. 192.168.x.x. Leave blank and the agent stays unconfigured: open the dashboard on port 4444, pair it from the hub (System → Cluster → Agents found on the network, found over mDNS, which needs host networking or br0) or add it by address, then confirm the six-digit code on both screens." Type="Variable" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Hub URL" Target="CAMSTACK_HUB_URL" Default="" Mode="" Description="Full hub base URL, e.g. https://192.168.x.x:4443. Leave blank to derive it from the hub address above; set it only when the hub is on a non-default port or behind a proxy." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
   <Config Name="Node ID" Target="CAMSTACK_NODE_ID" Default="" Mode="" Description="Stable cluster identifier for this agent, e.g. gpu-box. Defaults to the container hostname. Must be unique across the cluster and must not change once the hub knows it." Type="Variable" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Display name" Target="CAMSTACK_AGENT_NAME" Default="" Mode="" Description="How this agent is labelled in the topology view. Defaults to the node ID." Type="Variable" Display="always" Required="false" Mask="false"></Config>

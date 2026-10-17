@@ -39,7 +39,7 @@
   <Project>https://camstack.io</Project>
   <ReadMe>https://github.com/camstack/unraid-templates#readme</ReadMe>
   <License>MIT</License>
-  <Overview>CamStack is a self-hosted camera-management hub. ONVIF/RTSP/Reolink/Hikvision device providers, a WebRTC and RTSP restream broker, recording, and a motion + ML detection pipeline, all as addons over a typed RPC layer. Run this once; add a CamStack Agent on any other machine whose GPU/NPU you want to put to work. The admin UI is HTTPS on port 4443 with a self-signed certificate by default. Map BOTH /data and /config. The first sign-in is admin / changeme and asks you for a new password. No password, token or key goes in this template: a cluster secret, if you want one, is set in the admin UI (System → Cluster) and entered on each agent at first run.</Overview>
+  <Overview>CamStack is a self-hosted camera-management hub. ONVIF/RTSP/Reolink/Hikvision device providers, a WebRTC and RTSP restream broker, recording, and a motion + ML detection pipeline, all as addons over a typed RPC layer. Run this once; add a CamStack Agent on any other machine whose GPU/NPU you want to put to work. The admin UI is HTTPS on port 4443 with a self-signed certificate by default. Map BOTH /data and /config. The first sign-in is admin / changeme and asks you for a new password. No password, token or key goes in this template. Agents are paired from the admin UI (System → Cluster → Agents found on the network); there is no cluster secret.</Overview>
   <Category>HomeAutomation: Tools: Other:</Category>
   <WebUI>https://[IP]:[PORT:4443]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/camstack/unraid-templates/main/templates/camstack.xml</TemplateURL>
