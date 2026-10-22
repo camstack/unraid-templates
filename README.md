@@ -34,6 +34,24 @@ contract changes, update both files here in the same piece of work.
 - Hubs announce themselves over mDNS (UDP `5353` multicast). That reaches the LAN with a
   dedicated container IP (`br0`) or host networking, and not in Docker bridge mode.
 
+## Accelerators
+
+Every accelerator entry ships **empty**: Docker refuses to start a container that
+declares a device the host does not have, so enter only what this machine has. Full
+guide: [Accelerator passthrough](https://camstack.io/docs/installation/accelerators).
+
+| Entry | Enter | Host side |
+| --- | --- | --- |
+| Intel/AMD iGPU | `/dev/dri` | in the kernel |
+| Intel NPU / AMD XDNA | `/dev/accel` | in the kernel (XDNA: detected, no inference runtime yet) |
+| Coral USB | `/dev/bus/usb` (a path: the stick re-enumerates) | the udev rule in the [Unraid guide](https://camstack.io/docs/installation/unraid#coral-usb-the-device-must-be-writable-by-camstack); the `--device-cgroup-rule` is already in Extra Parameters |
+| Coral PCIe/M.2 unit 1, 2 | `/dev/apex_0`, `/dev/apex_1` | the gasket/apex driver (Coral driver plugin); image newer than v1.2.583 |
+| NVIDIA | — | Nvidia Driver plugin, `--runtime=nvidia` in Extra Parameters, variables `NVIDIA_VISIBLE_DEVICES=all` and `NVIDIA_DRIVER_CAPABILITIES=all` |
+
+No group setting is needed: the image entrypoint makes every passed node openable by
+CamStack. A Coral is never used until you enable it per node (Pipeline → the node →
+Inference devices), after installing its runtime once from inside the container.
+
 ## Reporting a problem
 
 Open an issue here. Include your Unraid version, the template you used, and the
