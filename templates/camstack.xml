@@ -66,8 +66,12 @@
        what this machine has; the value to enter is in each description. The image
        entrypoint makes every passed node openable by CamStack: no group setting.
        NVIDIA (CUDA): install the Nvidia Driver plugin, add runtime=nvidia (two leading
-       dashes) to Extra Parameters, and add the variables NVIDIA_VISIBLE_DEVICES=all
-       and NVIDIA_DRIVER_CAPABILITIES=all. -->
+       dashes) to Extra Parameters, add the variables NVIDIA_VISIBLE_DEVICES=all
+       and NVIDIA_DRIVER_CAPABILITIES=all, and set Repository to the NVIDIA image:
+       ghcr.io/camstack/camstack:nvidia-latest (RTX 20 or newer, GTX 16) or
+       ghcr.io/camstack/camstack:nvidia-legacy-latest (GTX 10 / GTX 9).
+       Older Intel iGPU (Gen8-Gen11: UHD 6xx, Coffee/Jasper/Ice Lake): set Repository
+       to ghcr.io/camstack/camstack:intel-legacy-latest. -->
   <Config Name="Intel/AMD iGPU" Target="/dev/dri" Default="" Mode="" Description="Optional. Enter /dev/dri to pass the integrated GPU: hardware video decode (VAAPI/QSV) and OpenVINO GPU or ONNX WebGPU inference. Leave empty if the machine has none; software decode costs roughly 60% of a CPU for a handful of 4K HEVC cameras." Type="Device" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Intel NPU / AMD XDNA" Target="/dev/accel" Default="" Mode="" Description="Optional. Enter /dev/accel to pass an Intel NPU (Core Ultra, OpenVINO NPU inference). An AMD XDNA NPU is detected but has no inference runtime yet. Leave empty if the machine has no NPU." Type="Device" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Coral USB (whole USB bus)" Target="/dev/bus/usb" Default="" Mode="rw" Description="Optional. Enter /dev/bus/usb for a Coral USB Edge TPU. Mapped as a path (the whole bus), not a device, because the stick re-enumerates from 1a6e:089a to 18d1:9302 when libedgetpu initialises; the device-cgroup-rule in Extra Parameters admits the new node. The node must also be writable by CamStack: add the udev rule from the Unraid install guide (Coral USB section)." Type="Path" Display="always" Required="false" Mask="false"></Config>
