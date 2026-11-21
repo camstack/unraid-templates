@@ -35,7 +35,7 @@
   <Privileged>false</Privileged>
   <Restart>unless-stopped</Restart>
   <Support>https://github.com/camstack/unraid-templates/issues</Support>
-  <Project>https://camstack.io</Project>
+  <Project>https://camstack-docs.zentik.app/docs/installation/unraid</Project>
   <ReadMe>https://github.com/camstack/unraid-templates#readme</ReadMe>
   <License>MIT</License>
   <Overview>CamStack is a self-hosted camera-management hub. ONVIF/RTSP/Reolink/Hikvision device providers, a WebRTC and RTSP restream broker, recording, and a motion + ML detection pipeline, all as addons over a typed RPC layer. Run this once; add a CamStack Agent on any other machine whose GPU/NPU you want to put to work. The admin UI is HTTPS on port 4443 with a self-signed certificate by default. Map /data. The first sign-in is admin / changeme and asks you for a new password. No password, token or key goes in this template. Agents are paired from the admin UI (Cluster → Nodes → Agents found on the network); there is no cluster secret.</Overview>
@@ -65,6 +65,7 @@
        Docker refuses to start with a device the host does not have, so fill in only
        what this machine has; the value to enter is in each description. The image
        entrypoint makes every passed node openable by CamStack: no group setting.
+       Not sure what this machine has? Run npx camstack host-check in the Unraid terminal.
        NVIDIA (CUDA): install the Nvidia Driver plugin, add runtime=nvidia (two leading
        dashes) to Extra Parameters, add the variables NVIDIA_VISIBLE_DEVICES=all
        and NVIDIA_DRIVER_CAPABILITIES=all, and set Repository to the NVIDIA image:

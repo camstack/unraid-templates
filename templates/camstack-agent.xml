@@ -33,7 +33,7 @@
   <Privileged>false</Privileged>
   <Restart>unless-stopped</Restart>
   <Support>https://github.com/camstack/unraid-templates/issues</Support>
-  <Project>https://camstack.io</Project>
+  <Project>https://camstack-docs.zentik.app/docs/installation/unraid</Project>
   <ReadMe>https://github.com/camstack/unraid-templates#readme</ReadMe>
   <License>MIT</License>
   <Overview>A CamStack Agent is a worker node. It joins a CamStack hub and runs the heavy work on this machine instead: ML detection, hardware decode/encode, the WebRTC and RTSP broker, and recording. This is not a standalone install — run the CamStack hub first, then point this at it. The agent is paired from the hub: open Cluster → Nodes, find it under Agents found on the network (or add it by address) and confirm the same six-digit code on the hub and on the agent's own page on port 4444. There is no shared secret to copy; after pairing the agent and hub trust each other by certificate. The app version is managed by the hub; only the boot loader comes from this image.</Overview>
@@ -63,6 +63,7 @@
        Docker refuses to start with a device the host does not have, so fill in only
        what this machine has; the value to enter is in each description. The image
        entrypoint makes every passed node openable by CamStack: no group setting.
+       Not sure what this machine has? Run npx camstack host-check in the Unraid terminal.
        NVIDIA (CUDA): install the Nvidia Driver plugin, add runtime=nvidia (two leading
        dashes) to Extra Parameters, add the variables NVIDIA_VISIBLE_DEVICES=all
        and NVIDIA_DRIVER_CAPABILITIES=all, and set Repository to the NVIDIA image:

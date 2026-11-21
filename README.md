@@ -1,6 +1,6 @@
 # CamStack — Unraid templates
 
-Community Applications templates for [CamStack](https://camstack.io), a self-hosted
+Community Applications templates for [CamStack](https://camstack-docs.zentik.app/docs/get-started), a self-hosted
 camera management platform: a **hub** plus optional **agents**, with ONVIF / RTSP /
 Reolink / Hikvision device providers, WebRTC and RTSP restreaming, recording, and a
 motion + ML detection pipeline that can run on an Intel iGPU, an Intel NPU or a Coral
@@ -38,13 +38,16 @@ contract changes, update both files here in the same piece of work.
 
 Every accelerator entry ships **empty**: Docker refuses to start a container that
 declares a device the host does not have, so enter only what this machine has. Full
-guide: [Accelerator passthrough](https://camstack.io/docs/installation/accelerators).
+guide: [Accelerator passthrough](https://camstack-docs.zentik.app/docs/installation/accelerators).
+Not sure what this machine has? Run `npx camstack host-check` in the Unraid terminal
+(read-only, nothing is sent): it lists the accelerators, NVIDIA cards included, and the
+entries to fill in. The whole setup, in order, is in [Get started](https://camstack-docs.zentik.app/docs/get-started).
 
 | Entry | Enter | Host side |
 | --- | --- | --- |
 | Intel/AMD iGPU | `/dev/dri` | in the kernel |
 | Intel NPU / AMD XDNA | `/dev/accel` | in the kernel (XDNA: detected, no inference runtime yet) |
-| Coral USB | `/dev/bus/usb` (a path: the stick re-enumerates) | the udev rule in the [Unraid guide](https://camstack.io/docs/installation/unraid#coral-usb-the-device-must-be-writable-by-camstack); the `--device-cgroup-rule` is already in Extra Parameters |
+| Coral USB | `/dev/bus/usb` (a path: the stick re-enumerates) | the udev rule in the [Unraid guide](https://camstack-docs.zentik.app/docs/installation/unraid#coral-usb-the-device-must-be-writable-by-camstack); the `--device-cgroup-rule` is already in Extra Parameters |
 | Coral PCIe/M.2 unit 1, 2 | `/dev/apex_0`, `/dev/apex_1` | the gasket/apex driver (Coral driver plugin); image newer than v1.2.583 |
 | NVIDIA | — (set Repository to `…:nvidia-latest`, or `…:nvidia-legacy-latest` for GTX 10 / 9) | Nvidia Driver plugin, `--runtime=nvidia` in Extra Parameters, variables `NVIDIA_VISIBLE_DEVICES=all` and `NVIDIA_DRIVER_CAPABILITIES=all` |
 | Older Intel iGPU (Gen8-Gen11) | `/dev/dri`, and set Repository to `…:intel-legacy-latest` | in the kernel |
