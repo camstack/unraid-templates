@@ -24,6 +24,8 @@
       Coral USB re-enumerates (1a6e:089a → 18d1:9302) when libedgetpu initialises, so the post-init device node is not the one that was passed through. The cgroup rule admits the whole USB char-device major. Pairs with the /dev/bus/usb mapping.
   pids-limit=8192
       A container cgroup counts THREADS, not processes. This hub was measured refusing 22 clone() calls in 45 minutes against the 2048 Docker/Unraid default — every one of them a thread some subsystem needed and silently did without, surfacing only as media that stopped. The ceiling stays (it is what makes a thread leak visible) and native-metrics reads pids.current/max/events on a heartbeat, so approaching it is now legible instead of fatal.
+  sysctl net.ipv6.conf.eth0.accept_ra_rt_info_max_plen=64
+      Matter over Thread. A Thread border router (Aqara hub, HomePod, Nest hub) advertises the route to its mesh prefix in a router advertisement; a container ignores that route unless this is set, so a shared Thread lock or sensor is commissioned and then never answers. Harmless without Thread. Needs IPv6 on the container network (br0 with IPv6 enabled).
 -->
 <Container version="2">
   <Name>CamStack</Name>
@@ -43,7 +45,7 @@
   <WebUI>https://[IP]:[PORT:4443]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/camstack/unraid-templates/main/templates/camstack.xml</TemplateURL>
   <Icon>https://camstack-docs.zentik.app/icon.png</Icon>
-  <ExtraParams>--device-cgroup-rule=&apos;c 189:* rmw&apos; --pids-limit=8192</ExtraParams>
+  <ExtraParams>--device-cgroup-rule=&apos;c 189:* rmw&apos; --pids-limit=8192 --sysctl net.ipv6.conf.eth0.accept_ra_rt_info_max_plen=64</ExtraParams>
   <PostArgs/>
   <CPUset/>
   <DateInstalled/>
